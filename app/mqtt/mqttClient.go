@@ -1,11 +1,11 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"strconv"
-	"strings"
+	"github.com/spf13/viper"
+	"math/rand"
+	"os"
 	"sync"
 	"time"
 )
@@ -25,80 +25,46 @@ var messageSubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 //连接失败数
 var failNums = 0
 
-/***
-* 创建客户端连接
- */
-func main() {
-	clientNum := flag.Uint64("clientNum", 30000, "client nums")
-	flag.Parse()
-	nums := int(*clientNum)
-	waitGroup := sync.WaitGroup{}
+func getMqttConn(taskId int) *mqtt.ClientOptions {
+	IDstr := fmt.Sprintf("%d", taskId)
+	opts := mqtt.NewClientOptions()
+	opts.AddBroker("tcp://"+viper.GetString("server.IP")+":"+viper.GetString("server.port"))
 
-	for i := 0; i < nums; i++ {
-		fmt.Printf("publish client num : %s \n", i)
-		waitGroup.Add(1)
-		time.Sleep(3 * time.Millisecond)
-		//调用连接和发布消息
-		go mqttConnPubMsgTask(i, &waitGroup)
-		//订阅
-		go mqttConnSubMsgTask(i, &waitGroup)
-	}
-
-	waitGroup.Wait()
+	opts.SetClientID(viper.GetString("client.ID") + IDstr)
+	opts.SetUsername(viper.GetString("client.username"))
+	opts.SetPassword(viper.GetString("client.passwd"))
+	opts.SetStore(mqtt.NewFileStore(viper.GetString("client.store")))
+	return opts
 }
 
 /***
 *
 * 连接任务和发布消息方法
  */
-var myBroker = "111.229.168.108"
-var myPort = 1883
-var build strings.Builder
-var username = "userA"
-var passwd = "userfast"
 
 func mqttConnPubMsgTask(taskId int, waitGroup *sync.WaitGroup) {
-	defer waitGroup.Done()
+	//defer waitGroup.Done()
 	//设置连接参数
-	build.WriteString("mqtt://")
-	build.WriteString(myBroker)
-	build.WriteString(":")
-	build.WriteString(strconv.Itoa(myPort))
-	conn := build.String()
+	opts := getMqttConn(taskId)
+	opts.SetClientID(fmt.Sprintf("client%d_%d_%d",taskId,rand.Intn(1000),time.Now().Unix()))
 
-	clinetOptions := mqtt.NewClientOptions().AddBroker(conn).SetUsername(username).SetPassword(passwd)
-	//设置客户端ID
-	clinetOptions.SetClientID(fmt.Sprintf("go Publish client example： %d-%d", taskId, time.Now().Unix()))
-	//设置handler
-	clinetOptions.SetDefaultPublishHandler(messagePubHandler)
-	//设置连接超时
-	clinetOptions.SetConnectTimeout(time.Duration(60) * time.Second)
-	//创建客户端连接
-	client := mqtt.NewClient(clinetOptions)
-
+	topic := viper.GetString("client.topic")
+	client := mqtt.NewClient(opts)
 	//客户端连接判断
-	if token := client.Connect(); token.WaitTimeout(time.Duration(60)*time.Second) && token.Wait() && token.Error() != nil {
-		failNums++
-		fmt.Printf("[Pub] mqtt connect error, taskId: %d, fail_nums: %d, error: %s \n", taskId, failNums, token.Error())
-		return
+	if token := client.Connect(); token.Wait() && token.Error() != nil {
+		panic(token.Error())
 	}
-
-	i := 0
-
-	for {
-		i++
-		time.Sleep(time.Duration(3) * time.Second)
-		text := fmt.Sprintf("this is test msg #%d ! from task :%d", i, taskId)
-		//fmt.Printf("start publish msg to mqtt broker, taskId: %d, count: %d \n", taskId, i)
-		//发布消息
-		token := client.Publish("mtopic", 1, false, text)
-		fmt.Printf("[Pub] end publish msg to mqtt broker, taskId: %d, count: %d, token : %s \n", taskId, i, token)
+	fmt.Println("Sample Publisher Started")
+	payload:="publish msg"+getCPUIDStr()
+	for i := 0; i < viper.GetInt("client.msgnum") ; i++ {
+		fmt.Printf("---- doing publish ID:%d round %d ----\n",taskId,i)
+		text:=fmt.Sprintf("Round %d:%s",i,payload)
+		token := client.Publish(topic, 0, false, text)
 		token.Wait()
 	}
 
 	client.Disconnect(250)
-	fmt.Println("[Pub] task is ok")
-
+	fmt.Printf("\nPublisher %d Disconnected",taskId)
 }
 
 /***
@@ -106,39 +72,38 @@ func mqttConnPubMsgTask(taskId int, waitGroup *sync.WaitGroup) {
 * 连接任务和消息订阅方法
  */
 func mqttConnSubMsgTask(taskId int, waitGroup *sync.WaitGroup) {
-	defer waitGroup.Done()
+	//defer waitGroup.Done()
 	//设置连接参数
-	build.WriteString("mqtt://")
-	build.WriteString(myBroker)
-	build.WriteString(":")
-	build.WriteString(strconv.Itoa(myPort))
-	conn := build.String()
-
-	clinetOptions := mqtt.NewClientOptions().AddBroker(conn).SetUsername(username).SetPassword(passwd)
+	receiveCount := 0
+	opts := getMqttConn(taskId)
+	opts.SetClientID(fmt.Sprintf("client%d_%d_%d",taskId,rand.Intn(1000),time.Now().Unix()))
 	//设置客户端ID
-	clinetOptions.SetClientID(fmt.Sprintf("go Subscribe client example： %d-%d", taskId, time.Now().Unix()))
+	//opts.SetClientID(fmt.Sprintf("go Subscribe client example： %d-%d", taskId, time.Now().Unix()))
 	//设置连接超时
-	clinetOptions.SetConnectTimeout(time.Duration(60) * time.Second)
+	//opts.SetConnectTimeout(time.Duration(60) * time.Second)
 	//创建客户端连接
-	client := mqtt.NewClient(clinetOptions)
+	topic := viper.GetString("client.topic")
 
-	//客户端连接判断
-	if token := client.Connect(); token.WaitTimeout(time.Duration(60)*time.Second) && token.Wait() && token.Error() != nil {
-		failNums++
-		fmt.Printf("[Sub] mqtt connect error, taskId: %d, fail_nums: %d, error: %s \n", taskId, failNums, token.Error())
-		return
+	choke := make(chan [2]string)
+
+	opts.SetDefaultPublishHandler(func(client mqtt.Client, msg mqtt.Message) {
+		choke <- [2]string{msg.Topic(), string(msg.Payload())}
+	})
+
+	client := mqtt.NewClient(opts)
+	if token := client.Connect(); token.Wait() && token.Error() != nil {
+		panic(token.Error())
 	}
 
-	i := 0
+	if token := client.Subscribe(topic, 0, nil); token.Wait() && token.Error() != nil {
+		fmt.Println(token.Error())
+		os.Exit(1)
+	}
 
-	for {
-		i++
-		time.Sleep(time.Duration(3) * time.Second)
-		//fmt.Printf("start publish msg to mqtt broker, taskId: %d, count: %d \n", taskId, i)
-		//发布消息
-		token := client.Subscribe("mtopic", 1, messageSubHandler)
-		fmt.Printf("[Sub] end Subscribe msg to mqtt broker, taskId: %d, count: %d, token : %s \n", taskId, i, token)
-		token.Wait()
+	for receiveCount < viper.GetInt("client.msgnum") {
+		incoming := <-choke
+		fmt.Printf("RECEIVED TOPIC: %s MESSAGE: %s\n", incoming[0], incoming[1])
+		receiveCount++
 	}
 
 	client.Disconnect(250)

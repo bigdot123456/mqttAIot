@@ -14,20 +14,19 @@ import (
 func main() {
     // set the device info, include product key, device name, and device secret
     var productKey string = "a1Zd7n5yTt8"
-    var deviceName string = "deng"
-    var deviceSecret string = "UrwclDV33NaFSmk0JaBxNTqgSrJWXIkN"
+    var deviceName string = "userA"
+    var deviceSecret string = "userfast"
 
     // set timestamp, clientid, subscribe topic and publish topic
     var timeStamp string = "1528018257135"
     var clientId string = "go_device_id_0001"
-    var subTopic string = "/" + productKey + "/" + deviceName + "/user/get";
-    var pubTopic string = "/" + productKey + "/" + deviceName + "/user/update";
+    var subTopic string = "mtopic";
+    var pubTopic string = "mtopic";
 
     // set the login broker url
     var raw_broker bytes.Buffer
-    raw_broker.WriteString("tls://")
-    raw_broker.WriteString(productKey)
-    raw_broker.WriteString(".iot-as-mqtt.cn-shanghai.aliyuncs.com:1883")
+    raw_broker.WriteString("tcp://")
+    raw_broker.WriteString("111.229.168.108:1883")
     opts := MQTT.NewClientOptions().AddBroker(raw_broker.String());
 
     // calculate the login auth info, and set it into the connection options
@@ -38,9 +37,9 @@ func main() {
     opts.SetKeepAlive(60 * 2 * time.Second)
     opts.SetDefaultPublishHandler(f)
 
-    // set the tls configuration
-    tlsconfig := NewTLSConfig()
-    opts.SetTLSConfig(tlsconfig)
+    //// set the tls configuration
+    //tlsconfig := NewTLSConfig()
+    //opts.SetTLSConfig(tlsconfig)
 
     // create and start a client using the above ClientOptions
     c := MQTT.NewClient(opts)

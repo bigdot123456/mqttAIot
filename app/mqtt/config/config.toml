@@ -1,0 +1,22 @@
+title = "mqtt config"
+
+# use toml to go to get code
+# https://xuri.me/toml-to-go/
+[server]
+IP = "111.229.168.108"
+port = 1883
+connection_max = 50
+
+[client]
+username = "userA"
+passwd = "userfast"
+topic="mtopic"
+store=":memory:"
+ID="testID"
+msgnum=10
+
+[mysql]
+ip= "111.229.168.108"
+port= 3306
+name = "fastroot"
+passwd= "test123456"
