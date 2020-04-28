@@ -55,7 +55,7 @@ func mqttConnPubMsgTask(taskId int, waitGroup *sync.WaitGroup) {
 		panic(token.Error())
 	}
 	fmt.Println("Sample Publisher Started")
-	payload:="publish msg"+getCPUIDStr()
+	payload:="publish msg"+getCPUID()
 	for i := 0; i < viper.GetInt("client.msgnum") ; i++ {
 		fmt.Printf("---- doing publish ID:%d round %d ----\n",taskId,i)
 		text:=fmt.Sprintf("Round %d:%s",i,payload)
