@@ -28,7 +28,7 @@ var failNums = 0
 func getMqttConn(taskId int) *mqtt.ClientOptions {
 	IDstr := fmt.Sprintf("%d", taskId)
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker("tcp://"+viper.GetString("server.IP")+":"+viper.GetString("server.port"))
+	opts.AddBroker("tcp://" + viper.GetString("server.IP") + ":" + viper.GetString("server.port"))
 
 	opts.SetClientID(viper.GetString("client.ID") + IDstr)
 	opts.SetUsername(viper.GetString("client.username"))
@@ -42,11 +42,11 @@ func getMqttConn(taskId int) *mqtt.ClientOptions {
 * 连接任务和发布消息方法
  */
 
-func mqttConnPubMsgTask(taskId int, waitGroup *sync.WaitGroup) {
-	//defer waitGroup.Done()
+func mqttConnPubMsgTask(taskId int, payload string, waitGroup *sync.WaitGroup) {
+	defer waitGroup.Done()
 	//设置连接参数
 	opts := getMqttConn(taskId)
-	opts.SetClientID(fmt.Sprintf("client%d_%d_%d",taskId,rand.Intn(1000),time.Now().Unix()))
+	opts.SetClientID(fmt.Sprintf("client%d_%d_%d", taskId, rand.Intn(1000), time.Now().Unix()))
 
 	topic := viper.GetString("client.topic")
 	client := mqtt.NewClient(opts)
@@ -54,29 +54,30 @@ func mqttConnPubMsgTask(taskId int, waitGroup *sync.WaitGroup) {
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
-	fmt.Println("Sample Publisher Started")
-	payload:="publish msg"+getCPUID()
-	for i := 0; i < viper.GetInt("client.msgnum") ; i++ {
-		fmt.Printf("---- doing publish ID:%d round %d ----\n",taskId,i)
-		text:=fmt.Sprintf("Round %d:%s",i,payload)
-		token := client.Publish(topic, 0, false, text)
-		token.Wait()
-	}
+	//fmt.Println("Sample Publisher Started")
+
+	//for i := 0; i < viper.GetInt("client.msgRepeatNum") ; i++ {
+	//fmt.Printf("---- doing publish ID:%d round %d ----\n",taskId,i)
+	//text:=fmt.Sprintf("ID%d No.%d:%s_",taskId,i,payload)
+	token := client.Publish(topic, 0, false, payload)
+	token.Wait()
+	//}
 
 	client.Disconnect(250)
-	fmt.Printf("\nPublisher %d Disconnected",taskId)
+	//fmt.Printf("\nPublisher %d Disconnected\n",taskId)
 }
 
 /***
 *
 * 连接任务和消息订阅方法
  */
-func mqttConnSubMsgTask(taskId int, waitGroup *sync.WaitGroup) {
-	//defer waitGroup.Done()
+func mqttConnSubMsgTask(taskId int, playload *[]string, waitGroup *sync.WaitGroup) {
+
+	defer waitGroup.Done()
 	//设置连接参数
 	receiveCount := 0
 	opts := getMqttConn(taskId)
-	opts.SetClientID(fmt.Sprintf("client%d_%d_%d",taskId,rand.Intn(1000),time.Now().Unix()))
+	opts.SetClientID(fmt.Sprintf("client%d_%d_%d", taskId, rand.Intn(1000), time.Now().Unix()))
 	//设置客户端ID
 	//opts.SetClientID(fmt.Sprintf("go Subscribe client example： %d-%d", taskId, time.Now().Unix()))
 	//设置连接超时
@@ -99,14 +100,16 @@ func mqttConnSubMsgTask(taskId int, waitGroup *sync.WaitGroup) {
 		fmt.Println(token.Error())
 		os.Exit(1)
 	}
-
+	msg := make([]string, 0)
 	for receiveCount < viper.GetInt("client.msgnum") {
 		incoming := <-choke
-		fmt.Printf("RECEIVED TOPIC: %s MESSAGE: %s\n", incoming[0], incoming[1])
+		msg = append(msg, incoming[1])
+		//fmt.Printf("RECEIVED TOPIC: %s MESSAGE: %s\n", incoming[0], msg)
 		receiveCount++
 	}
-
+	*playload = msg
 	client.Disconnect(250)
-	fmt.Println("[Sub] task is ok")
+	//fmt.Printf("[Sub] task %d msg:\t%v\nAddr:%p\n",taskId,playload,playload)
+	//return playload
 
 }

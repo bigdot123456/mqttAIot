@@ -1,23 +1,22 @@
 package main
 
+// place it into mqtt directory, it will be ok
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"strconv"
 	"sync"
-	"testing"
 	"time"
 )
 
-/***
-* 创建客户端连接
- */
-func TestIoT(t *testing.T) {
-	//clientNum := flag.Uint64("clientNum", 30000, "client nums")
-	//flag.Parse()
-	//nums := int(*clientNum)
-	nums := 20
-	msg := [20][]string{}
+const testNum = 20
+
+func main() {
+	clientNum := flag.Uint64("clientNum", 10, "client nums")
+	nums := int(*clientNum)
+
+	msg := [testNum][]string{}
 	waitGroup := &sync.WaitGroup{}
 	//fmt.Printf("org Address:%p,%p",&msg,&msg[0])
 	deviceInfoStr.Msg = "hello"

@@ -2,11 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/bwmarrin/snowflake"
 	"github.com/fsnotify/fsnotify"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/snksoft/crc"
+	"strings"
 	"syscall"
 	"time"
 
@@ -50,10 +52,36 @@ type DeviceInfo struct {
 	MACID   string `toml:"MACID"`
 	DISKID  string `toml:"DISKID"`
 	UUID    string `toml:"uuid"`
+	Key     string `toml:"key"`
+	Msg     string `toml:"msg"`
 }
+
 var deviceInfoStr DeviceInfo
+var printVersion bool
+
+//需要赋值的变量
+var (
+	//Version 项目版本信息
+	Version = ""
+	//GoVersion Go版本信息
+	GoVersion = ""
+	//GitTag Tag id
+	GitTag = ""
+	//GitCommit git提交commmit id
+	GitCommit = ""
+	//BuildTime 构建时间
+	BuildTime = ""
+	//Author 作者
+	Author = ""
+)
 
 func init() {
+	flag.BoolVar(&printVersion, "version", false, "print program build version")
+	flag.Parse()
+	if printVersion {
+		PrintVersion()
+	}
+	fmt.Printf("Start MAC miner Monitor Process...!\n")
 	path, err := os.Getwd()
 	if err != nil {
 		panic(err)
@@ -79,6 +107,17 @@ func init() {
 	getDeviceInfo()
 }
 
+//PrintVersion 输出版本信息
+func PrintVersion() {
+	fmt.Printf("Version: %s\n", Version)
+	fmt.Printf("Go Version: %s\n", GoVersion)
+	fmt.Printf("Git Commit: %s\n", GitCommit)
+	fmt.Printf("Git Tag: %s\n", GitTag)
+	fmt.Printf("Build Time: %s\n", BuildTime)
+	fmt.Printf("Author: %s\n", Author)
+	os.Exit(0)
+}
+
 func getCPUID() string {
 	ids := [4]uint32{}
 	cpuid.Cpuid(&ids, 0)
@@ -87,7 +126,7 @@ func getCPUID() string {
 
 	return cpustr
 }
-func getNodeNumbyCPUID() int64{
+func getNodeNumbyCPUID() int64 {
 	ids := [4]uint32{}
 	cpuid.Cpuid(&ids, 0)
 	cpustr := fmt.Sprintf("%d%d%d%d", ids[0], ids[1], ids[2], ids[3])
@@ -102,7 +141,7 @@ func getNodeNumbyCPUID() int64{
 
 	hash := crc.NewHash(crc.XMODEM)
 	s16 := hash.CalculateCRC([]byte(signByte))
-	s:=s16%1024
+	s := s16 % 1024
 	return int64(s)
 
 	//// string到int
@@ -119,15 +158,28 @@ func getNodeNumbyCPUID() int64{
 
 }
 
+func getIP2() string {
+	conn, err := net.Dial("udp", "baidu.com:80")
+	//conn, err := net.Dial("udp", "google.com:80")
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+	defer conn.Close()
+	newIP := strings.Split(conn.LocalAddr().String(), ":")[0]
+	fmt.Printf("Machine real IP is %s\n", newIP)
+	return newIP
+}
 
-func getIP() string {
+func getIP1() string {
 	resp, err := http.Get("http://myexternalip.com/raw")
 
 	if err != nil {
 		os.Stderr.WriteString(err.Error())
 		os.Stderr.WriteString("\n")
 		//os.Exit(1)
-		return ""
+		newIP := getIP0()
+		return newIP
 	}
 	defer resp.Body.Close()
 	//io.Copy(os.Stdout, resp.Body)
@@ -193,16 +245,16 @@ func getUUID(NodeID int64) string {
 }
 
 // cpu info
-func getCPUInfo()string {
+func getCPUInfo() string {
 	cpuInfos, err := cpu.Info()
 	if err != nil {
 		fmt.Printf("get cpu info failed, err:%v", err)
 		return ""
 	}
-	s:=""
+	s := ""
 	for _, ci := range cpuInfos {
 		//fmt.Println(ci)
-		s+=ci.String()
+		s += ci.String()
 	}
 	// CPU使用率
 	//for {
@@ -210,22 +262,35 @@ func getCPUInfo()string {
 	//	fmt.Printf("cpu percent:%v\n", percent)
 	//}
 	percent, _ := cpu.Percent(time.Second, false)
-	s+=fmt.Sprintf("\npercent:%f",percent)
+	s += fmt.Sprintf("\npercent:%f", percent)
 	return s
+}
+
+// Get preferred outbound ip of this machine
+func getIP0() string {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddr.IP.String()
 }
 
 //var deviceInfoStr map[string]string
 
-func getDeviceInfo()string {
-	deviceInfoStr.CPUID=getCPUID()
-	deviceInfoStr.MACID=getMACID()
-	deviceInfoStr.DISKID=getDiskID()
-	deviceInfoStr.CPUInfo=getCPUInfo()
-	deviceInfoStr.IP=getIP()
-	deviceInfoStr.IPInt=getIPInt()
-	NodeNume:=getNodeNumbyCPUID()
-	deviceInfoStr.UUID=getUUID(NodeNume)
+func getDeviceInfo() string {
+	deviceInfoStr.CPUID = getCPUID()
+	deviceInfoStr.MACID = getMACID()
+	deviceInfoStr.DISKID = getDiskID()
+	deviceInfoStr.CPUInfo = getCPUInfo()
+	deviceInfoStr.IP = getIP0()
+	deviceInfoStr.IPInt = getIPInt()
+	NodeNume := getNodeNumbyCPUID()
+	deviceInfoStr.UUID = getUUID(NodeNume)
 
-	s,_  := json.Marshal(deviceInfoStr)
+	s, _ := json.Marshal(deviceInfoStr)
 	return string(s)
 }
