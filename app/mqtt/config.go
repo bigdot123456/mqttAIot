@@ -300,6 +300,7 @@ func getIP0() string {
 //var deviceInfoStr map[string]string
 
 func getDeviceInfo() string {
+	deviceInfoStr.Title = viper.GetString("title")
 	deviceInfoStr.CPUID = getCPUID()
 	deviceInfoStr.MACID = getMACID()
 	deviceInfoStr.DISKID = getDiskID()

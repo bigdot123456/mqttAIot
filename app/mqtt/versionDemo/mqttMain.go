@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const testNum = 20
+//const testNum = 20
 
 func main() {
 	//clientNum := flag.Uint64("clientNum", 10, "client nums")
