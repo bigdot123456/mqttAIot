@@ -1,4 +1,4 @@
-# This is how we want to name the binary output
+#!/bin/bash
 # This is how we want to name the binary output
 OUTPUT=main
 
@@ -16,6 +16,8 @@ GoVersion=`go version | sed 's/[ ][ ]*/_/g'`
 LDFLAGS="-X ${OUTPUT}.Version=${Version} -X ${OUTPUT}.GitTag=${GitTag} -X ${OUTPUT}.BuildTime=${BuildTime} -X ${OUTPUT}.GitCommit=${GitCommit} -X ${OUTPUT}.GoVersion=${GoVersion} -X ${OUTPUT}.Author=${Author}"
 
 go build -ldflags "$LDFLAGS" -o ${OUTPUT}
+./${OUTPUT} --version
+
 #echo go build -ldflags \"$LDFLAGS\"  > run.sh
 #chmod +x run.sh
 #./run.sh
