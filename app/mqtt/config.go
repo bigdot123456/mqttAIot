@@ -171,7 +171,8 @@ func getIP2() string {
 }
 
 func getIP1() string {
-	resp, err := http.Get("http://myexternalip.com/raw")
+	//resp, err := http.Get("http://myexternalip.com/raw")
+	resp, err := http.Get("http://ifconfig.io/ip")
 
 	if err != nil {
 		os.Stderr.WriteString(err.Error())
@@ -305,7 +306,7 @@ func getDeviceInfo() string {
 	deviceInfoStr.MACID = getMACID()
 	deviceInfoStr.DISKID = getDiskID()
 	deviceInfoStr.CPUInfo = getCPUInfo()
-	deviceInfoStr.IP = getIP0()
+	deviceInfoStr.IP = getIP1()
 	deviceInfoStr.IPInt = getIPInt()
 	NodeNume := getNodeNumbyCPUID()
 	deviceInfoStr.UUID = getUUID(NodeNume)

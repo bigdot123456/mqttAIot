@@ -13,8 +13,8 @@ passwd = "userfast"
 topic="mtopic"
 store=":memory:"
 ID="testID"
-msgRepeatNum=1
-TimeIntervel=5
+msgRepeatNum=2
+TimeIntervel=10
 
 [mysql]
 ip= "111.229.168.108"
