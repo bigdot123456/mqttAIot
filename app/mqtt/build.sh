@@ -9,7 +9,7 @@ Author="bigdot"
 GitTag="Tag_`git describe --tags`"
 BuildTime=`date +%FT%T%z`
 GitCommit=`git rev-parse HEAD`
-#GoVersion=`go version | sed 's/[ ][ ]*/_/g'`
+GoVersion=`go version | sed 's/[ ][ ]*/_/g'`
 
 # Setup the -ldflags option for go build here, interpolate the variable values
 # shellcheck disable=SC2027
