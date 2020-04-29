@@ -5,6 +5,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/spf13/viper"
 	"math/rand"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -52,7 +53,7 @@ func mqttConnPubMsgTask(taskId int, payload string, waitGroup *sync.WaitGroup) {
 	//客户端连接判断
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		fmt.Println(token.Error())
-		fmt.Printf("%d:Can't Connect Server....\n",time.Now().Unix())
+		fmt.Printf("%d:Can't Connect Server....\n", time.Now().Unix())
 		//panic(token.Error())
 		return
 	}
@@ -61,7 +62,7 @@ func mqttConnPubMsgTask(taskId int, payload string, waitGroup *sync.WaitGroup) {
 	//for i := 0; i < viper.GetInt("client.msgRepeatNum") ; i++ {
 	//fmt.Printf("---- doing publish ID:%d round %d ----\n",taskId,i)
 	//text:=fmt.Sprintf("ID%d No.%d:%s_",taskId,i,payload)
-	token := client.Publish(topic, 0, false, payload)
+	token := client.Publish(topic+"/"+strconv.Itoa(taskId), 0, false, payload)
 	token.Wait()
 	//}
 
@@ -96,7 +97,7 @@ func mqttConnSubMsgTask(taskId int, playload *[]string, waitGroup *sync.WaitGrou
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		fmt.Println(token.Error())
-		fmt.Printf("%d:Can't Connect Server....\n",time.Now().Unix())
+		fmt.Printf("%d:Can't Connect Server....\n", time.Now().Unix())
 		//panic(token.Error())
 		return
 	}

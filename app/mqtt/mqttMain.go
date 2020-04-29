@@ -50,7 +50,7 @@ func sendOnePub() {
 	for i := 0; i < nums; i++ {
 		waitGroup.Add(1)
 		text := fmt.Sprintf("{\"Key\":\"%s%d\"}", cpuStr, i)
-		go mqttConnPubMsgTask(i, text, waitGroup)
+		go mqttConnPubMsgTask(i+1, text, waitGroup)
 	}
 	waitGroup.Wait()
 	//fmt.Println("Finish one test!")

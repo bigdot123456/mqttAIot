@@ -6,14 +6,13 @@ import (
 	"fmt"
 	"github.com/bwmarrin/snowflake"
 	"github.com/fsnotify/fsnotify"
+	"github.com/google/uuid"
+	"github.com/jaypipes/ghw"
+	"github.com/jeek120/cpuid"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/snksoft/crc"
 	"strings"
-	"syscall"
 	"time"
-	"github.com/jaypipes/ghw"
-	"github.com/google/uuid"
-	"github.com/jeek120/cpuid"
 	//"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"io/ioutil"
@@ -218,17 +217,18 @@ func getMACID() string {
 	}
 	return s
 }
-func getDiskID1() string {
 
-	var st syscall.Stat_t
-	err := syscall.Stat("/dev/disk0", &st)
-	if err != nil {
-		panic(err)
-	}
-	return fmt.Sprintf("%+v", st)
-}
+//func getDiskID1() string {
+//
+//	var st syscall.Stat_t
+//	err := syscall.Stat("/dev/disk0", &st)
+//	if err != nil {
+//		panic(err)
+//	}
+//	return fmt.Sprintf("%+v", st)
+//}
 
-func getDiskID() string{
+func getDiskID() string {
 	block, err := ghw.Block()
 	if err != nil {
 		fmt.Printf("Error getting block storage info: %v", err)
@@ -238,7 +238,7 @@ func getDiskID() string{
 	//fmt.Printf("%v\n", block)
 	s := ""
 	for _, disk := range block.Disks {
-		s +=fmt.Sprintf(" %v\n", disk)
+		s += fmt.Sprintf(" %v\n", disk)
 		//for _, part := range disk.Partitions {
 		//	fmt.Printf("  %v\n", part)
 		//}
