@@ -11,7 +11,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
-
+	"github.com/jaypipes/ghw"
 	"github.com/google/uuid"
 	"github.com/jeek120/cpuid"
 	//"github.com/satori/go.uuid"
@@ -218,7 +218,7 @@ func getMACID() string {
 	}
 	return s
 }
-func getDiskID() string {
+func getDiskID1() string {
 
 	var st syscall.Stat_t
 	err := syscall.Stat("/dev/disk0", &st)
@@ -226,6 +226,24 @@ func getDiskID() string {
 		panic(err)
 	}
 	return fmt.Sprintf("%+v", st)
+}
+
+func getDiskID() string{
+	block, err := ghw.Block()
+	if err != nil {
+		fmt.Printf("Error getting block storage info: %v", err)
+		return "Error diskID"
+	}
+
+	//fmt.Printf("%v\n", block)
+	s := ""
+	for _, disk := range block.Disks {
+		s +=fmt.Sprintf(" %v\n", disk)
+		//for _, part := range disk.Partitions {
+		//	fmt.Printf("  %v\n", part)
+		//}
+	}
+	return s
 }
 
 //import "github.com/satori/go.uuid"

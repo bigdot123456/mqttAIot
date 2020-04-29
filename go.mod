@@ -1,15 +1,14 @@
 module client
 
 require (
-	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/go-demo/version v0.0.0-20200109120206-2cde9473fd92
-	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/gogf/gf v1.12.2
 	github.com/google/uuid v1.1.1
 	github.com/intel-go/cpuid v0.0.0-20181003105527-1a4a6f06a1c6
+	github.com/jaypipes/ghw v0.6.0
 	github.com/jeek120/cpuid v0.0.0-20160722083344-236acb02ac50
 	github.com/robfig/cron v1.2.0
 	github.com/shirou/gopsutil v2.20.3+incompatible
