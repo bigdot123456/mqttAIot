@@ -10,7 +10,7 @@ import (
 func TestIP(t *testing.T) {
 	//fmt.Println("Usage of ./getmyip --get_ip=(external|internal)")
 	//flag.Parse()
-	ex := getIP()
+	ex := getIP0()
 	in := getIPInt()
 	fmt.Printf("extiP:\t%s\ninIP:\t%s", ex, in)
 

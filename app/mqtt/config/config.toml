@@ -10,7 +10,8 @@ connection_max = 50
 [client]
 username = "userA"
 passwd = "userfast"
-topic="mtopic"
+subtopic="mtopic"
+pubtopic="mtopic"
 store=":memory:"
 ID="testID"
 msgRepeatNum=2

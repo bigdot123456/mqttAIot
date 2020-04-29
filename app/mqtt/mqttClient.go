@@ -48,7 +48,7 @@ func mqttConnPubMsgTask(taskId int, payload string, waitGroup *sync.WaitGroup) {
 	opts := getMqttConn(taskId)
 	opts.SetClientID(fmt.Sprintf("client%d_%d_%d", taskId, rand.Intn(1000), time.Now().Unix()))
 
-	topic := viper.GetString("client.topic")
+	topic := viper.GetString("client.pubtopic")
 	client := mqtt.NewClient(opts)
 	//客户端连接判断
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
@@ -62,7 +62,7 @@ func mqttConnPubMsgTask(taskId int, payload string, waitGroup *sync.WaitGroup) {
 	//for i := 0; i < viper.GetInt("client.msgRepeatNum") ; i++ {
 	//fmt.Printf("---- doing publish ID:%d round %d ----\n",taskId,i)
 	//text:=fmt.Sprintf("ID%d No.%d:%s_",taskId,i,payload)
-	token := client.Publish(topic+"/"+strconv.Itoa(taskId), 0, false, payload)
+	token := client.Publish(topic+"/"+strconv.Itoa(taskId)+"/"+deviceInfoStr.CPUID, 0, false, payload)
 	token.Wait()
 	//}
 
@@ -86,7 +86,7 @@ func mqttConnSubMsgTask(taskId int, playload *[]string, waitGroup *sync.WaitGrou
 	//设置连接超时
 	//opts.SetConnectTimeout(time.Duration(60) * time.Second)
 	//创建客户端连接
-	topic := viper.GetString("client.topic")
+	topic := viper.GetString("client.subtopic")
 
 	choke := make(chan [2]string)
 
