@@ -37,7 +37,8 @@ func main() {
 			go sendOnePub()
 			if client != nil {
 				go func() {
-					token := client.Publish(topic+"/N/"+deviceInfoStr.CPUID+"/"+GitCommit, 0, false, strconv.Itoa(int(i)))
+					hash := MAChash(deviceInfoStr.CPUID)
+					token := client.Publish(topic+"/N/"+deviceInfoStr.CPUID+"/"+GitCommit, 0, false, hash+strconv.Itoa(int(i)))
 
 					token.Wait()
 				}()
@@ -52,7 +53,7 @@ func main() {
 				break
 			}
 		}
-		fmt.Printf("Run No.%d publish with %d seconds interval...\n", i, n)
+		fmt.Printf("No.%d Miner activity with %d seconds interval...\n", i, n)
 	}
 	client.Disconnect(250)
 }

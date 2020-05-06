@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/md5"
+	"crypto/sha1"
+	"encoding/json"
 	"fmt"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/spf13/viper"
@@ -154,4 +157,26 @@ func mqttConnSubMsgTask(taskId int, playload *[]string, waitGroup *sync.WaitGrou
 	//fmt.Printf("[Sub] task %d msg:\t%v\nAddr:%p\n",taskId,playload,playload)
 	//return playload
 
+}
+
+func MAChash(TestString string) string {
+	Md5Inst := md5.New()
+	Md5Inst.Write([]byte(TestString))
+	Result := Md5Inst.Sum([]byte(""))
+	md5Str := string(Result[:])
+	//fmt.Printf("%x\n\n", Result)
+	rand.Seed(time.Now().Unix())
+	x := rand.Int63()
+	y := rand.Int63()
+	S, _ := json.Marshal(deviceInfoStr)
+
+	timeStr := time.Now().Format("2006-01-02 15:04:05")
+	Result1 := md5Str + string(S) + strconv.FormatInt(x, 10) + strconv.FormatInt(y, 10) + timeStr
+
+	Sha1Inst := sha1.New()
+	Sha1Inst.Write([]byte(Result1))
+	Result = Sha1Inst.Sum([]byte(""))
+	hashStr := fmt.Sprintf("%x", Result) //将[]byte转成16进制
+	//fmt.Printf("%x\n\n", Result)
+	return hashStr
 }

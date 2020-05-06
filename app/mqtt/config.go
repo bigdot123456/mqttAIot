@@ -17,7 +17,6 @@ import (
 	//"github.com/satori/go.uuid"
 	"github.com/spf13/viper"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -44,15 +43,15 @@ type ConfigInfo struct {
 }
 
 type DeviceInfo struct {
+	Key     string `toml:"key"`
+	CPUID   string `toml:"CPUID"`
 	Title   string `toml:"title"`
 	IP      string `toml:"IP"`
 	IPInt   string `toml:"IPInt"`
-	CPUID   string `toml:"CPUID"`
 	CPUInfo string `toml:"CPUInfo"`
 	MACID   string `toml:"MACID"`
 	DISKID  string `toml:"DISKID"`
 	UUID    string `toml:"uuid"`
-	Key     string `toml:"key"`
 	Msg     string `toml:"msg"`
 	OS      string `toml:"os"`
 }
@@ -106,7 +105,7 @@ func init() {
 		//viper配置发生变化了 执行响应的操作
 		fmt.Println("Config file changed:", e.Name)
 	})
-
+	viper.SetDefault("title", "MAC V0 Miner")
 	viper.SetDefault("Server.IP", "39.99.160.245")
 	viper.SetDefault("Server.port", 1883)
 
@@ -121,7 +120,8 @@ func init() {
 
 	viper.SetDefault("LayoutDir", "layouts")
 	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
-	getDeviceInfo()
+	s := getDeviceInfo()
+	WriteWithIoutil("SysInfo.json", s)
 }
 
 //PrintVersion 输出版本信息
@@ -307,7 +307,8 @@ func getCPUInfo() string {
 func getIP0() string {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("get IP0 info failed, err:%v", err)
+		return "0.0.0.0"
 	}
 	defer conn.Close()
 
@@ -326,11 +327,19 @@ func getDeviceInfo() string {
 	deviceInfoStr.CPUInfo = getCPUInfo()
 	deviceInfoStr.IP = getIP1()
 	deviceInfoStr.IPInt = getIPInt()
-	NodeNume := getNodeNumbyCPUID()
-	deviceInfoStr.UUID = getUUID(NodeNume)
+	NodeNum := getNodeNumbyCPUID()
+	deviceInfoStr.UUID = getUUID(NodeNum)
 	deviceInfoStr.OS = runtime.GOOS
 	deviceInfoStr.Msg = GitCommit
-
+	deviceInfoStr.Key = MAChash(deviceInfoStr.CPUInfo)
 	s, _ := json.Marshal(deviceInfoStr)
+
 	return string(s)
+}
+
+func WriteWithIoutil(name, content string) {
+	data := []byte(content)
+	if ioutil.WriteFile(name, data, 0644) == nil {
+		fmt.Println("\nWrite Device Info file %s:\n", name, content)
+	}
 }
