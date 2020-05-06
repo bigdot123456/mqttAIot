@@ -56,7 +56,7 @@ jobs:
     - name: Build
 #      run: go build -v .
       run:
-        (cd ./app/mqtt;go build -ldflags \"$LDFLAGS\" -o $OUTPUT)
+        (cd ./app/mqtt;go build -o $OUTPUT)
 #        ./build.sh
 
     - name: Test
