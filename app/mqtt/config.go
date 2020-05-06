@@ -11,6 +11,7 @@ import (
 	"github.com/jeek120/cpuid"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/snksoft/crc"
+	"runtime"
 	"strings"
 	"time"
 	//"github.com/satori/go.uuid"
@@ -53,6 +54,7 @@ type DeviceInfo struct {
 	UUID    string `toml:"uuid"`
 	Key     string `toml:"key"`
 	Msg     string `toml:"msg"`
+	OS      string `toml:"os"`
 }
 
 var deviceInfoStr DeviceInfo
@@ -92,7 +94,8 @@ func init() {
 	viper.AddConfigPath(".")   // 设置配置文件和可执行二进制文件在用一个目录
 	err = viper.ReadInConfig() // 根据以上配置读取加载配置文件
 	if err != nil {
-		log.Fatal(err) // 读取配置文件失败致命错误
+		//log.Fatal(err) // 读取配置文件失败致命错误
+		fmt.Printf("Config file doesn't exist, Use default setting! Miner config maybe wrong!")
 	}
 	viper.WatchConfig()
 	viper.AutomaticEnv()
@@ -103,8 +106,19 @@ func init() {
 		//viper配置发生变化了 执行响应的操作
 		fmt.Println("Config file changed:", e.Name)
 	})
-	viper.SetDefault("Server.IP", "127.0.0.1")
+
+	viper.SetDefault("Server.IP", "39.99.160.245")
 	viper.SetDefault("Server.port", 1883)
+
+	viper.SetDefault("client.username", "userA")
+	viper.SetDefault("client.passwd", "userfast")
+	viper.SetDefault("client.subtopic", "mtopic")
+	viper.SetDefault("client.pubtopic", "mtopic")
+	viper.SetDefault("client.store", ":memory:")
+	viper.SetDefault("client.ID", "MACID")
+	viper.SetDefault("client.msgRepeatNum", 1)
+	viper.SetDefault("client.TimeIntervel", 10)
+
 	viper.SetDefault("LayoutDir", "layouts")
 	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
 	getDeviceInfo()
@@ -114,8 +128,8 @@ func init() {
 func PrintVersion() {
 	fmt.Printf("Version: %s\n", Version)
 	fmt.Printf("Go Version: %s\n", GoVersion)
-	fmt.Printf("Git Commit: %s\n", GitCommit)
-	fmt.Printf("Git Tag: %s\n", GitTag)
+	fmt.Printf("HASH: %s\n", GitCommit)
+	fmt.Printf("Tag: %s\n", GitTag)
 	fmt.Printf("Build Time: %s\n", BuildTime)
 	fmt.Printf("Author: %s\n", Author)
 	os.Exit(0)
@@ -314,7 +328,8 @@ func getDeviceInfo() string {
 	deviceInfoStr.IPInt = getIPInt()
 	NodeNume := getNodeNumbyCPUID()
 	deviceInfoStr.UUID = getUUID(NodeNume)
-	deviceInfoStr.Msg=GitCommit
+	deviceInfoStr.OS = runtime.GOOS
+	deviceInfoStr.Msg = GitCommit
 
 	s, _ := json.Marshal(deviceInfoStr)
 	return string(s)

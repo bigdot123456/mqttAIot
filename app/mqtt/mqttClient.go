@@ -33,7 +33,11 @@ func getMqttConn(taskId int) *mqtt.ClientOptions {
 	opts.SetClientID(viper.GetString("client.ID") + IDstr)
 	opts.SetUsername(viper.GetString("client.username"))
 	opts.SetPassword(viper.GetString("client.passwd"))
-	opts.SetStore(mqtt.NewFileStore(viper.GetString("client.store")))
+	store := viper.GetString("client.store")
+	if store != ":memory:" {
+		opts.SetStore(mqtt.NewFileStore(store))
+	}
+
 	return opts
 }
 

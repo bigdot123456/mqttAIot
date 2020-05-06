@@ -3,10 +3,11 @@
 OUTPUT=main
 
 Version="v0.1"
-Author="bigdot"
+Author="MACPower"
 # These are the values we want to pass for Version and BuildTime
 #GitTag=`git describe --tags`
-GitTag="Tag_`git describe --tags`"
+GitTag="MAC`git describe --tags`"
+
 BuildTime=`date +%FT%T%z`
 GitCommit=`git rev-parse HEAD`
 GoVersion=`go version | sed 's/[ ][ ]*/_/g'`
@@ -19,16 +20,16 @@ MACOS="CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 "
 LNXOS="CGO_ENABLED=0 GOOS=linux GOARCH=amd64 "
 WINOS="CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "
 
-rm -f -r ./release $OUTPUT
+rm -f -r ./release $OUTPUT.* $OUTPUT
 mkdir -p ./release
 
 CMD="go build"
 
-echo $MACOS $CMD -ldflags \"$LDFLAGS\" -o ./release/MAC.$OUTPUT  > ./run.sh
-echo $LNXOS $CMD -ldflags \"$LDFLAGS\" -o ./release/LNX.$OUTPUT >> ./run.sh
+echo $MACOS $CMD -ldflags \"$LDFLAGS\" -o ./release/$OUTPUT.MAC  > ./run.sh
+echo $LNXOS $CMD -ldflags \"$LDFLAGS\" -o ./release/$OUTPUT.LNX >> ./run.sh
 echo $WINOS $CMD -ldflags \"$LDFLAGS\" -o ./release/$OUTPUT.exe >> ./run.sh
 
-echo go build -ldflags \"$LDFLAGS\" -o $OUTPUT >> ./run.sh
+echo go build -ldflags \"$LDFLAGS\" -o ./$OUTPUT.exe >> ./run.sh
 
 chmod +x ./run.sh
 ./run.sh

@@ -1,5 +1,7 @@
 #!/bin/bash
 cd ./app/mqtt/
 ./build.sh
-./main --version
+# go run . --version
+# go run .
+./main.exe --version
 ./main

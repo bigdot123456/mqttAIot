@@ -25,6 +25,10 @@ func main() {
 
 	for {
 		n := viper.GetInt("client.TimeIntervel")
+		if n == 0 {
+			n = 1
+			fmt.Printf("Error in reading config files ./config/config.toml with TimeIntervel, Please check it! \n")
+		}
 		ticker := time.NewTicker(time.Duration(n * 1e9))
 
 		select {
@@ -33,7 +37,8 @@ func main() {
 			go sendOnePub()
 			if client != nil {
 				go func() {
-					token := client.Publish(topic+"/Normal/"+deviceInfoStr.CPUID, 0, false, strconv.Itoa(int(i)))
+					token := client.Publish(topic+"/N/"+deviceInfoStr.CPUID+"/"+GitCommit, 0, false, strconv.Itoa(int(i)))
+
 					token.Wait()
 				}()
 

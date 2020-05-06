@@ -4,7 +4,6 @@ title = "MAC Miner"
 # https://xuri.me/toml-to-go/
 [server]
 IP = "39.99.160.245"
-#IP = "111.229.168.108"
 port = 1883
 connection_max = 50
 
@@ -19,7 +18,7 @@ msgRepeatNum=2
 TimeIntervel=10
 
 [mysql]
-ip= "111.229.168.108"
+ip= "39.99.160.245"
 port= 3306
 name = "fastroot"
 passwd= "test123456"
