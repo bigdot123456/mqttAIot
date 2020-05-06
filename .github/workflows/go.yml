@@ -5,6 +5,8 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  schedule:
+    - cron: 0 * * * *
 
 jobs:
 
@@ -12,6 +14,28 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+    - name: Set GOPATH
+      goenv: |
+        echo "::set-env name=action_state::yellow"
+        echo "::set-env name=OUTPUT::main"
+        echo "::set-env name=Version::0.1"
+        echo "::set-env name=Author::bigdot"
+
+        echo "##[set-env name=GOPATH;]$(dirname $GITHUB_WORKSPACE)"
+        echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
+        echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d)"
+        echo "##[set-env name=NAME;]$(date +%Y%m%d)"
+        echo "##[set-env name=GitTag;]$(git describe --tags)"
+        echo "##[set-env name=BuildTime;]$(date +%FT%T%z)"
+        echo "##[set-env name=GitCommit;]$(git rev-parse HEAD)"
+        echo "##[set-env name=GoVersion;]$(go version | sed 's/[ ][ ]*/_/g)"
+        echo "##[set-env name=LDFLAGS;]$(go version | sed 's/[ ][ ]*/_/g)"
+        echo "::set-env name=LDFLAGS::-X ${OUTPUT}.Version=${Version} -X ${OUTPUT}.GitTag=${GitTag} -X ${OUTPUT}.BuildTime=${BuildTime} -X ${OUTPUT}.GitCommit=${GitCommit} -X ${OUTPUT}.GoVersion=${GoVersion} -X ${OUTPUT}.Author=${Author}"
+
+      shell:
+        bash
+      run:
+        echo $LDFLAGS
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
@@ -31,7 +55,23 @@ jobs:
         fi
 
     - name: Build
-      run: go build -v .
+#      run: go build -v .
+
+      run:
+        cd ./app/mqtt
+        go build -ldflags \"$LDFLAGS\" -o $OUTPUT
+#        ./build.sh
 
     - name: Test
       run: go test -v .
+
+    - name: Deploy stage
+      uses: easingthemes/ssh-deploy@v2.1.2
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        ARGS: "-rltgoDzvO"
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        SOURCE: $OUTPUT
+        TARGET: ${{ secrets.REMOTE_TARGET }}
+

@@ -2,7 +2,6 @@ name: Build CI For golang
 
 on:
   push:
-  pull:
   schedule:
     - cron: 0 * * * *
 jobs:
@@ -25,6 +24,7 @@ jobs:
              echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
              echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d)"
              echo "##[set-env name=NAME;]$(date +%Y%m%d)"
+
         shell: bash
       - name: Test
         run:
