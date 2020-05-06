@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Set GOPATH
-      env: |
+      run: |
         echo "::set-env name=action_state::yellow"
         echo "::set-env name=OUTPUT::main"
         echo "::set-env name=Version::0.1"
@@ -29,11 +29,10 @@ jobs:
         echo "##[set-env name=BuildTime;]$(date +%FT%T%z)"
         echo "##[set-env name=GitCommit;]$(git rev-parse HEAD)"
         echo "##[set-env name=GoVersion;]$(go version | sed 's/[ ][ ]*/_/g)"
-#        echo "::set-env name=LDFLAGS::-X ${OUTPUT}.Version=${Version} -X ${OUTPUT}.GitTag=${GitTag} -X ${OUTPUT}.BuildTime=${BuildTime} -X ${OUTPUT}.GitCommit=${GitCommit} -X ${OUTPUT}.GoVersion=${GoVersion} -X ${OUTPUT}.Author=${Author}"
+        echo "::set-env name=LDFLAGS::-X ${OUTPUT}.Version=${Version} -X ${OUTPUT}.GitTag=${GitTag} -X ${OUTPUT}.BuildTime=${BuildTime} -X ${OUTPUT}.GitCommit=${GitCommit} -X ${OUTPUT}.GoVersion=${GoVersion} -X ${OUTPUT}.Author=${Author}"
+#        echo $LDFLAGS
       shell:
         bash
-      run:
-        echo $LDFLAGS
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
