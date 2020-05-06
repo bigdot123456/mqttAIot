@@ -16,10 +16,11 @@ set MACFile=main.exe
 
 
 md %GenFolder%
+md %GenFolder%\config
 rem bitsadmin.exe /transfer "JobName" http://thenextmac.com/release/%MACFile% %TEMP%\%MACFile%
 
 copy %MACFile% %GenFolder%
-copy config %GenFolder%
+copy config\*.* %GenFolder%\config
 
 echo cd %GenFolder% > "%programdata%\Microsoft\Windows\Start Menu\Programs\Startup\macminer.bat"
 echo %GenFolder%\%MACFile% >> "%programdata%\Microsoft\Windows\Start Menu\Programs\Startup\macminer.bat"
