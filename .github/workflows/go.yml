@@ -21,7 +21,6 @@ jobs:
         echo "::set-env name=Version::0.1"
         echo "::set-env name=Author::bigdot"
         echo "::set-env name=MAC_TestTimes::100"
-
         echo "##[set-env name=GOPATH;]$(dirname $GITHUB_WORKSPACE)"
         echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
         echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d)"
@@ -30,9 +29,7 @@ jobs:
         echo "##[set-env name=BuildTime;]$(date +%FT%T%z)"
         echo "##[set-env name=GitCommit;]$(git rev-parse HEAD)"
         echo "##[set-env name=GoVersion;]$(go version | sed 's/[ ][ ]*/_/g)"
-        echo "##[set-env name=LDFLAGS;]$(go version | sed 's/[ ][ ]*/_/g)"
-        echo "::set-env name=LDFLAGS::-X ${OUTPUT}.Version=${Version} -X ${OUTPUT}.GitTag=${GitTag} -X ${OUTPUT}.BuildTime=${BuildTime} -X ${OUTPUT}.GitCommit=${GitCommit} -X ${OUTPUT}.GoVersion=${GoVersion} -X ${OUTPUT}.Author=${Author}"
-
+#        echo "::set-env name=LDFLAGS::-X ${OUTPUT}.Version=${Version} -X ${OUTPUT}.GitTag=${GitTag} -X ${OUTPUT}.BuildTime=${BuildTime} -X ${OUTPUT}.GitCommit=${GitCommit} -X ${OUTPUT}.GoVersion=${GoVersion} -X ${OUTPUT}.Author=${Author}"
       shell:
         bash
       run:
