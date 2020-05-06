@@ -62,7 +62,7 @@ jobs:
     - name: Test
       run:
 #        go test -v .
-         (./$OUTPUT --version;./$OUTPUT)
+         (cd ./app/mqtt;go run .)
 
     - name: Deploy stage
       uses: easingthemes/ssh-deploy@v2.1.2
