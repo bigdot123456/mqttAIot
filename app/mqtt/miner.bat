@@ -24,6 +24,10 @@ copy config\*.* %GenFolder%\config
 
 echo cd %GenFolder% > "%programdata%\Microsoft\Windows\Start Menu\Programs\Startup\macminer.bat"
 echo %GenFolder%\%MACFile% >> "%programdata%\Microsoft\Windows\Start Menu\Programs\Startup\macminer.bat"
- 
+
+echo tasklist|find /i "%MACFile%" && echo started || start "" "%MACFile%"
+
+pause
+
 tasklist|find /i "%MACFile%" && echo started || start "" "%MACFile%"
 

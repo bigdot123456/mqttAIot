@@ -1,7 +1,13 @@
 package main
 
 import (
+	"crypto/md5"
+	crypt_rand "crypto/rand"
+	"crypto/rsa"
+	"crypto/sha1"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"flag"
 	"fmt"
 	"github.com/bwmarrin/snowflake"
@@ -11,7 +17,9 @@ import (
 	"github.com/jeek120/cpuid"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/snksoft/crc"
+	"math/rand"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 	//"github.com/satori/go.uuid"
@@ -44,6 +52,7 @@ type ConfigInfo struct {
 
 type DeviceInfo struct {
 	Key     string `toml:"key"`
+	UUID    string `toml:"uuid"`
 	CPUID   string `toml:"CPUID"`
 	Title   string `toml:"title"`
 	IP      string `toml:"IP"`
@@ -51,7 +60,6 @@ type DeviceInfo struct {
 	CPUInfo string `toml:"CPUInfo"`
 	MACID   string `toml:"MACID"`
 	DISKID  string `toml:"DISKID"`
-	UUID    string `toml:"uuid"`
 	Msg     string `toml:"msg"`
 	OS      string `toml:"os"`
 }
@@ -73,6 +81,7 @@ var (
 	BuildTime = ""
 	//Author 作者
 	Author = ""
+	pubkey = ""
 )
 
 func init() {
@@ -120,6 +129,7 @@ func init() {
 
 	viper.SetDefault("LayoutDir", "layouts")
 	viper.SetDefault("Taxonomies", map[string]string{"tag": "tags", "category": "categories"})
+	GenRsaKey(2048)
 	s := getDeviceInfo()
 	WriteWithIoutil("SysInfo.json", s)
 }
@@ -141,8 +151,18 @@ func getCPUID() string {
 	//fmt.Printf("%d%d%d%d", ids[0], ids[1], ids[2], ids[3])
 	cpustr := fmt.Sprintf("%d%d%d%d", ids[0], ids[1], ids[2], ids[3])
 
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		panic("MACID error: " + err.Error())
+	}
+
+	for _, inter := range interfaces {
+		cpustr += fmt.Sprintf("_%s", inter.HardwareAddr)
+	}
+	cpustr = strings.Replace(cpustr, ":", "", -1)
 	return cpustr
 }
+
 func getNodeNumbyCPUID() int64 {
 	ids := [4]uint32{}
 	cpuid.Cpuid(&ids, 0)
@@ -330,8 +350,9 @@ func getDeviceInfo() string {
 	NodeNum := getNodeNumbyCPUID()
 	deviceInfoStr.UUID = getUUID(NodeNum)
 	deviceInfoStr.OS = runtime.GOOS
-	deviceInfoStr.Msg = GitCommit
-	deviceInfoStr.Key = MAChash(deviceInfoStr.CPUInfo)
+	deviceInfoStr.Msg = MAChash(deviceInfoStr.CPUInfo)
+
+	deviceInfoStr.Key = pubkey
 	s, _ := json.Marshal(deviceInfoStr)
 
 	return string(s)
@@ -340,6 +361,70 @@ func getDeviceInfo() string {
 func WriteWithIoutil(name, content string) {
 	data := []byte(content)
 	if ioutil.WriteFile(name, data, 0644) == nil {
-		fmt.Println("\nWrite Device Info file %s:\n", name, content)
+		fmt.Printf("\nWrite Device Info file %s:\n %s\n", name, content)
 	}
+}
+
+func MAChash(TestString string) string {
+	Md5Inst := md5.New()
+	Md5Inst.Write([]byte(TestString))
+	Result := Md5Inst.Sum([]byte(""))
+	md5Str := string(Result[:])
+	//fmt.Printf("%x\n\n", Result)
+	rand.Seed(time.Now().Unix())
+	x := rand.Int63()
+	y := rand.Int63()
+	S, _ := json.Marshal(deviceInfoStr)
+
+	timeStr := time.Now().Format("2006-01-02_150405")
+	Result1 := md5Str + string(S) + strconv.FormatInt(x, 10) + strconv.FormatInt(y, 10) + timeStr
+
+	Sha1Inst := sha1.New()
+	Sha1Inst.Write([]byte(Result1))
+	Result = Sha1Inst.Sum([]byte(""))
+	hashStr := fmt.Sprintf("%x", Result) //将[]byte转成16进制
+	//fmt.Printf("%x\n\n", Result)
+	return hashStr
+}
+
+func GenRsaKey(bits int) error {
+	// 生成私钥文件
+	privateKey, err := rsa.GenerateKey(crypt_rand.Reader, bits)
+	if err != nil {
+		return err
+	}
+	derStream := x509.MarshalPKCS1PrivateKey(privateKey)
+	block := &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: derStream,
+	}
+	timeStr := time.Now().Format("2006-01-02_15_04_05")
+	file, err := os.Create("private" + timeStr + ".pem")
+	if err != nil {
+		return err
+	}
+	err = pem.Encode(file, block)
+	if err != nil {
+		return err
+	}
+	// 生成公钥文件
+	publicKey := &privateKey.PublicKey
+	derPkix, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		return err
+	}
+	pubkey = fmt.Sprintf("%x", derPkix)
+	block = &pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: derPkix,
+	}
+	file, err = os.Create("public" + timeStr + ".pem")
+	if err != nil {
+		return err
+	}
+	err = pem.Encode(file, block)
+	if err != nil {
+		return err
+	}
+	return nil
 }
