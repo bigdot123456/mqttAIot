@@ -2,8 +2,8 @@ name: Build CI For golang
 
 on:
   push:
-  schedule:
-    - cron: 0 * * * *
+#  schedule:
+#    - cron: 0 0 1 * *
 jobs:
   build:
     strategy:
@@ -28,6 +28,6 @@ jobs:
         shell: bash
       - name: Test
         run:
-          set MAC_TestTimes=10
-          ./runMqtt.sh
+          (set MAC_TestTimes=10;./runMqtt.sh)
+
 
