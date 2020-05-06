@@ -45,7 +45,7 @@ jobs:
         echo "##[set-env name=GitCommit;]MyGit$(git rev-parse HEAD)"
         echo "##[set-env name=GoVersion;]$(go version | sed 's/[ ][ ]*/_/g')"
         echo "::set-env name=LDFLAGS::-X ${OUTPUT}.Version=${{env.Version}} -X ${OUTPUT}.GitTag=${{env.GitTag}} -X ${OUTPUT}.BuildTime=${{env.BuildTime}} -X ${OUTPUT}.GitCommit=${{env.GitCommit}} -X ${OUTPUT}.GoVersion=${{env.GoVersion}} -X ${OUTPUT}.Author=${{env.Author}}"
-        echo "LD = ${LDFLAGS} GitTag = ${MAC_TestTimes}"
+
         go get -v -t -d ./...
         if [ -f Gopkg.toml ]; then
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
@@ -62,7 +62,7 @@ jobs:
     - name: Test
       run:
 #        go test -v .
-         (cd ./app/mqtt;go run .)
+         (cd ./app/mqtt;set MAC_TestTimes=10;go run .)
 
     - name: Deploy stage
       uses: easingthemes/ssh-deploy@v2.1.2

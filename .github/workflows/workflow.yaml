@@ -28,5 +28,6 @@ jobs:
         shell: bash
       - name: Test
         run:
-             ./runMqtt.sh
+          set MAC_TestTimes=10
+          ./runMqtt.sh
 
