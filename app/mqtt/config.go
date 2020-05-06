@@ -314,6 +314,7 @@ func getDeviceInfo() string {
 	deviceInfoStr.IPInt = getIPInt()
 	NodeNume := getNodeNumbyCPUID()
 	deviceInfoStr.UUID = getUUID(NodeNume)
+	deviceInfoStr.Msg=GitCommit
 
 	s, _ := json.Marshal(deviceInfoStr)
 	return string(s)
