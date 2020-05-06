@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Set GOPATH
-      goenv: |
+      env: |
         echo "::set-env name=action_state::yellow"
         echo "::set-env name=OUTPUT::main"
         echo "::set-env name=Version::0.1"
