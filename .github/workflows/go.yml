@@ -45,7 +45,7 @@ jobs:
         echo "##[set-env name=GitCommit;]$(git rev-parse HEAD)"
         echo "##[set-env name=GoVersion;]$(go version | sed 's/[ ][ ]*/_/g')"
         echo "::set-env name=LDFLAGS::-X ${OUTPUT}.Version=${Version} -X ${OUTPUT}.GitTag=${GitTag} -X ${OUTPUT}.BuildTime=${BuildTime} -X ${OUTPUT}.GitCommit=${GitCommit} -X ${OUTPUT}.GoVersion=${GoVersion} -X ${OUTPUT}.Author=${Author}"
-        echo ${LDFLAGS}
+        echo "LD = ${LDFLAGS}"
         go get -v -t -d ./...
         if [ -f Gopkg.toml ]; then
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
