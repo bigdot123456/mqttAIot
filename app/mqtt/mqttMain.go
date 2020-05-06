@@ -31,10 +31,22 @@ func main() {
 		case <-ticker.C:
 			//fmt.Printf("ticked at %v\n", time.Now())
 			go sendOnePub()
-			token := client.Publish(topic+"/Normal/"+deviceInfoStr.CPUID, 0, false, strconv.Itoa(int(i)))
-			token.Wait()
+			if client != nil {
+				go func() {
+					token := client.Publish(topic+"/Normal/"+deviceInfoStr.CPUID, 0, false, strconv.Itoa(int(i)))
+					token.Wait()
+				}()
+
+			}
 		}
 		i++
+		x := viper.GetInt("MAC.TestTimes")
+		if x != 0 {
+			if i > x {
+				fmt.Println("Finish test!")
+				break
+			}
+		}
 		fmt.Printf("Run No.%d publish with %d seconds interval...\n", i, n)
 	}
 	client.Disconnect(250)

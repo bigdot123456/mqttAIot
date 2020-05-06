@@ -20,6 +20,7 @@ jobs:
         echo "::set-env name=OUTPUT::main"
         echo "::set-env name=Version::0.1"
         echo "::set-env name=Author::bigdot"
+        echo "::set-env name=MAC_TestTimes::100"
 
         echo "##[set-env name=GOPATH;]$(dirname $GITHUB_WORKSPACE)"
         echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
@@ -63,7 +64,10 @@ jobs:
 #        ./build.sh
 
     - name: Test
-      run: go test -v .
+      run:
+#        go test -v .
+         ./$OUTPUT --version
+         ./$OUTPUT
 
     - name: Deploy stage
       uses: easingthemes/ssh-deploy@v2.1.2

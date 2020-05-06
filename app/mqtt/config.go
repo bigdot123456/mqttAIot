@@ -95,6 +95,10 @@ func init() {
 		log.Fatal(err) // 读取配置文件失败致命错误
 	}
 	viper.WatchConfig()
+	viper.AutomaticEnv()
+	viper.SetEnvPrefix("MAC")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		//viper配置发生变化了 执行响应的操作
 		fmt.Println("Config file changed:", e.Name)
