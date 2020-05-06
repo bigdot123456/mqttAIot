@@ -40,11 +40,11 @@ jobs:
         echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
         echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d)"
         echo "##[set-env name=NAME;]$(date +%Y%m%d)"
-        echo "##[set-env name=GitTag;]$(git describe --tags)"
+        echo "##[set-env name=GitTag;]MyGit$$(git describe --tags)"
         echo "##[set-env name=BuildTime;]$(date +%FT%T%z)"
         echo "##[set-env name=GitCommit;]MyGit$(git rev-parse HEAD)"
         echo "##[set-env name=GoVersion;]$(go version | sed 's/[ ][ ]*/_/g')"
-        echo "::set-env name=LDFLAGS::-X ${OUTPUT}.Version=${Version} -X ${OUTPUT}.GitTag=${GitTag} -X ${OUTPUT}.BuildTime=${BuildTime} -X ${OUTPUT}.GitCommit=${GitCommit} -X ${OUTPUT}.GoVersion=${GoVersion} -X ${OUTPUT}.Author=${Author}"
+        echo "::set-env name=LDFLAGS::-X ${OUTPUT}.Version=${{Version}} -X ${OUTPUT}.GitTag=${{GitTag}} -X ${OUTPUT}.BuildTime=${{BuildTime}} -X ${OUTPUT}.GitCommit=${{GitCommit}} -X ${OUTPUT}.GoVersion=${{GoVersion}} -X ${OUTPUT}.Author=${{Author}}"
         echo "LD = ${LDFLAGS} GitTag = ${MAC_TestTimes}"
         go get -v -t -d ./...
         if [ -f Gopkg.toml ]; then
