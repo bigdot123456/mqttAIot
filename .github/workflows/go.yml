@@ -16,21 +16,10 @@ jobs:
     steps:
     - name: Set GOPATH
       run: |
+        echo "##[set-env name=GOPATH;]$(dirname $GITHUB_WORKSPACE)"
         echo "::set-env name=action_state::yellow"
         echo "::set-env name=OUTPUT::main"
-        echo "::set-env name=Version::0.1"
-        echo "::set-env name=Author::bigdot"
-        echo "::set-env name=MAC_TestTimes::100"
-        echo "##[set-env name=GOPATH;]$(dirname $GITHUB_WORKSPACE)"
-        echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
-        echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d)"
-        echo "##[set-env name=NAME;]$(date +%Y%m%d)"
-        echo "##[set-env name=GitTag;]$(git describe --tags)"
-        echo "##[set-env name=BuildTime;]$(date +%FT%T%z)"
-        echo "##[set-env name=GitCommit;]$(git rev-parse HEAD)"
-        echo "##[set-env name=GoVersion;]$(go version | sed 's/[ ][ ]*/_/g)"
-        echo "::set-env name=LDFLAGS::-X ${OUTPUT}.Version=${Version} -X ${OUTPUT}.GitTag=${GitTag} -X ${OUTPUT}.BuildTime=${BuildTime} -X ${OUTPUT}.GitCommit=${GitCommit} -X ${OUTPUT}.GoVersion=${GoVersion} -X ${OUTPUT}.Author=${Author}"
-#        echo $LDFLAGS
+ #        echo $LDFLAGS
       shell:
         bash
 
@@ -45,6 +34,17 @@ jobs:
 
     - name: Get dependencies
       run: |
+        echo "::set-env name=Version::0.1"
+        echo "::set-env name=Author::bigdot"
+        echo "::set-env name=MAC_TestTimes::100"
+        echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
+        echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d)"
+        echo "##[set-env name=NAME;]$(date +%Y%m%d)"
+        echo "##[set-env name=GitTag;]$(git describe --tags)"
+        echo "##[set-env name=BuildTime;]$(date +%FT%T%z)"
+        echo "##[set-env name=GitCommit;]$(git rev-parse HEAD)"
+        echo "##[set-env name=GoVersion;]$(go version | sed 's/[ ][ ]*/_/g')"
+        echo "::set-env name=LDFLAGS::-X ${OUTPUT}.Version=${Version} -X ${OUTPUT}.GitTag=${GitTag} -X ${OUTPUT}.BuildTime=${BuildTime} -X ${OUTPUT}.GitCommit=${GitCommit} -X ${OUTPUT}.GoVersion=${GoVersion} -X ${OUTPUT}.Author=${Author}"
         go get -v -t -d ./...
         if [ -f Gopkg.toml ]; then
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
@@ -53,7 +53,6 @@ jobs:
 
     - name: Build
 #      run: go build -v .
-
       run:
         cd ./app/mqtt
         go build -ldflags \"$LDFLAGS\" -o $OUTPUT
