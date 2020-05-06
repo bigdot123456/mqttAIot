@@ -42,7 +42,7 @@ func getMqttConn(taskId int) *mqtt.ClientOptions {
 * 连接任务和发布消息方法
  */
 
-func mqttConnPubMsgTask(taskId int, payload string, waitGroup *sync.WaitGroup) {
+func mqttConnPubMsgTaskOrg(taskId int, payload string, waitGroup *sync.WaitGroup) {
 	defer waitGroup.Done()
 	//设置连接参数
 	opts := getMqttConn(taskId)
@@ -68,6 +68,37 @@ func mqttConnPubMsgTask(taskId int, payload string, waitGroup *sync.WaitGroup) {
 
 	client.Disconnect(250)
 	//fmt.Printf("\nPublisher %d Disconnected\n",taskId)
+}
+
+func mqttConnPubMsgTask(taskId int, payload string, waitGroup *sync.WaitGroup) {
+	defer waitGroup.Done()
+	//设置连接参数
+	client := mqttConnTask(taskId)
+	if client == nil {
+		fmt.Printf("ticked at %v:Please check network connection!\n", time.Now())
+		return
+	}
+	topic := viper.GetString("client.pubtopic")
+	token := client.Publish(topic+"/"+strconv.Itoa(taskId)+"/"+deviceInfoStr.CPUID, 0, false, payload)
+	token.Wait()
+	client.Disconnect(250)
+	//fmt.Printf("\nPublisher %d Disconnected\n",taskId)
+}
+
+func mqttConnTask(taskId int) mqtt.Client {
+	//设置连接参数
+	opts := getMqttConn(taskId)
+	opts.SetClientID(fmt.Sprintf("client%d_%d_%d", taskId, rand.Intn(1000), time.Now().Unix()))
+
+	client := mqtt.NewClient(opts)
+	//客户端连接判断
+	if token := client.Connect(); token.Wait() && token.Error() != nil {
+		fmt.Println(token.Error())
+		fmt.Printf("%d:Can't Connect Server....\n", time.Now().Unix())
+		//panic(token.Error())
+		return nil
+	}
+	return client
 }
 
 /***

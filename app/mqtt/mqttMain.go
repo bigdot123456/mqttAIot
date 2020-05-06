@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"strconv"
 	"time"
 
 	//"flag"
@@ -15,7 +16,12 @@ import (
 func main() {
 
 	//aChan := make(chan int, 1)
-	var i int64 = 0
+	i := 0
+	//设置连接参数
+	client := mqttConnTask(100)
+
+	topic := viper.GetString("client.pubtopic")
+	//fmt.Printf("\nPublisher %d Disconnected\n",taskId)
 
 	for {
 		n := viper.GetInt("client.TimeIntervel")
@@ -24,11 +30,14 @@ func main() {
 		select {
 		case <-ticker.C:
 			//fmt.Printf("ticked at %v\n", time.Now())
-			sendOnePub()
+			go sendOnePub()
+			token := client.Publish(topic+"/Normal/"+deviceInfoStr.CPUID, 0, false, strconv.Itoa(int(i)))
+			token.Wait()
 		}
 		i++
 		fmt.Printf("Run No.%d publish with %d seconds interval...\n", i, n)
 	}
+	client.Disconnect(250)
 }
 
 func main0() {
