@@ -53,16 +53,17 @@ jobs:
           tar zcvf ./app${NAME}.tgz release config *.bat
 
           curl -fsSL git.io/file-transfer | sh
-          echo ./transfer cow ./app${NAME}.tgz 2>&1 | tee cowtransfer.log
-          ./transfer cow -s ./app${NAME}.tgz | tee cowtransfer.log
-          cat cowtransfer.log
+          echo ./transfer cow --no-progress ./app${NAME}.tgz 2>&1 | tee cowtransfer.log
+          ./transfer cow -s ./app${NAME}.tgz 2>&1 | tee cowtransfer.log
           echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+          echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep code)"
 
       - name: Upload firmware to WeTransfer
         if: steps.backupPlatformFile.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
         run: |
             curl -fsSL git.io/file-transfer | sh
-            ./transfer wet -s --no-progress app/mqtt/app${NAME}.tgz | tee wetransfer.log
+            ./transfer wet -s --no-progress ./app${NAME}.tgz | tee wetransfer.log
             echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
+            echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep code)"
 
 
