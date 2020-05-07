@@ -107,7 +107,7 @@ func init() {
 	}
 	viper.WatchConfig()
 	viper.AutomaticEnv()
-	viper.SetEnvPrefix("MAC")
+	viper.SetEnvPrefix("client")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	viper.OnConfigChange(func(e fsnotify.Event) {

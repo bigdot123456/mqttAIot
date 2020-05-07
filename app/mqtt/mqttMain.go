@@ -46,7 +46,7 @@ func main() {
 			}
 		}
 		i++
-		x := viper.GetInt("MAC.TestTimes")
+		x := viper.GetInt("client.TestTimes")
 		if x != 0 {
 			if i > x {
 				fmt.Println("Finish test!")

@@ -25,8 +25,8 @@ mkdir -p ./release
 
 CMD="go build"
 
-echo $MACOS $CMD -ldflags \"$LDFLAGS\" -o ./release/$OUTPUT.MAC  > ./run.sh
-echo $LNXOS $CMD -ldflags \"$LDFLAGS\" -o ./release/$OUTPUT.LNX >> ./run.sh
+echo $MACOS $CMD -ldflags \"$LDFLAGS\" -o ./release/$OUTPUT.mac  > ./run.sh
+echo $LNXOS $CMD -ldflags \"$LDFLAGS\" -o ./release/$OUTPUT.lnx >> ./run.sh
 echo $WINOS $CMD -ldflags \"$LDFLAGS\" -o ./release/$OUTPUT.exe >> ./run.sh
 
 echo go build -ldflags \"$LDFLAGS\" -o ./$OUTPUT.exe >> ./run.sh

@@ -35,8 +35,8 @@ jobs:
     - name: Get dependencies
       run: |
         echo "::set-env name=Version::0.1"
-        echo "::set-env name=Author::bigdot"
-        echo "::set-env name=MAC_TestTimes::100"
+        echo "::set-env name=Author::MACPower"
+        echo "::set-env name=client_TestTimes::100"
         echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
         echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d)"
         echo "##[set-env name=NAME;]$(date +%Y%m%d)"
@@ -62,7 +62,7 @@ jobs:
     - name: Test
       run:
 #        go test -v .
-         (cd ./app/mqtt;set MAC_TestTimes=10;go run .)
+         (cd ./app/mqtt;set client_TestTimes=10;go run .)
 
     - name: Deploy stage
       uses: easingthemes/ssh-deploy@v2.1.2
