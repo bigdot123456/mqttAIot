@@ -57,7 +57,7 @@ jobs:
         run: |
               curl -fsSL git.io/file-transfer | sh
               echo ./transfer cow -s -p 64 --no-progress app/mqtt/app${NAME}.tgz 2>&1 | tee cowtransfer.log
-              ./transfer cow -s app/mqtt/app${NAME}.tgz 2>&1 | tee cowtransfer.log
+              ./transfer cow app/mqtt/app${NAME}.tgz 2>&1 | tee cowtransfer.log
               cat cowtransfer.log
               echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
 
