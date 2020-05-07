@@ -25,9 +25,15 @@ copy config\*.* %GenFolder%\config
 echo cd %GenFolder% > "%programdata%\Microsoft\Windows\Start Menu\Programs\Startup\macminer.bat"
 echo %GenFolder%\%MACFile% >> "%programdata%\Microsoft\Windows\Start Menu\Programs\Startup\macminer.bat"
 
+echo "Create Desktop shortcut"
+rem set path=%WINDIR%\notepad.exe
+set srcFile=%GenFolder%\%MACFile%
+set topath="%USERPROFILE%\desktop\%MACFile%.url"
+echo [InternetShortcut] >> %topath%
+echo URL="%srcFile%" >> %topath%
+echo IconIndex=0 >> %topath%
+echo IconFile=%srcFile% >> %topath%
+
 echo tasklist|find /i "%MACFile%" && echo started || start "" "%MACFile%"
-
-pause
-
 tasklist|find /i "%MACFile%" && echo started || start "" "%MACFile%"
 

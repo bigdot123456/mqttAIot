@@ -1,8 +1,8 @@
 package main
 
 import (
-"fmt"
-"github.com/snksoft/crc"
+	"fmt"
+	"github.com/snksoft/crc"
 	"testing"
 )
 
@@ -14,9 +14,9 @@ func TestCRC(t *testing.T) {
 
 	// You can also reuse hash instance for another crc calculation
 	// And if data is too big, you may feed it in chunks
-	hash.Reset() // Discard crc data accumulated so far
-	hash.Update([]byte("123456789")) // feed first chunk
-	hash.Update([]byte("01234567890")) // feed next chunk
-	xmodemCrc2 := hash.CRC() // gets CRC of whole data "12345678901234567890"
+	hash.Reset()                              // Discard crc data accumulated so far
+	hash.Update([]byte("123456789"))          // feed first chunk
+	hash.Update([]byte("01234567890"))        // feed next chunk
+	xmodemCrc2 := hash.CRC()                  // gets CRC of whole data "12345678901234567890"
 	fmt.Printf("CRC is 0x%04X\n", xmodemCrc2) // prints "CRC is 0x2C89"
 }

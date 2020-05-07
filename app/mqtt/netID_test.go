@@ -20,7 +20,7 @@ func TestNetID(t *testing.T) {
 	//	panic(err)
 	//}
 	//fmt.Printf("%+v", st)
-	s1:=getDiskID()
-	s2:=getMACID()
-	fmt.Println(s1,s2)
+	s1 := getDiskID()
+	s2 := getMACID()
+	fmt.Println(s1, s2)
 }

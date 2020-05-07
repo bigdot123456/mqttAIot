@@ -24,10 +24,10 @@ jobs:
              echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
              echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d)"
              echo "##[set-env name=NAME;]$(date +%Y%m%d)"
-             echo "::set-env name=client_TestTimes::20"
+             echo "::set-env name=MAC_TESTTIMES::20"
         shell: bash
       - name: Test
         run:
-          (set client_TestTimes=10;./runMqtt.sh)
+          ./runMqtt.sh
 
 

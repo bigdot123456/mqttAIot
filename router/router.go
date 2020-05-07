@@ -1,8 +1,8 @@
 package router
 
 import (
-    "client/app/api/hello"
-    "github.com/gogf/gf/frame/g"
+	"client/app/api/hello"
+	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
 )
 

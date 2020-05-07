@@ -6,17 +6,18 @@ import (
 	"testing"
 	//"time"
 )
+
 //import "github.com/shirou/gopsutil/cpu"
 func TestCPUID(t *testing.T) {
 
 	ids := [4]uint32{}
 	cpuid.Cpuid(&ids, 0)
 	//fmt.Printf("%d%d%d%d", ids[0], ids[1], ids[2], ids[3])
-	s1:=getCPUInfo()
-	s2:=getCPUID()
-	s3:=getNodeNumbyCPUID()
+	s1 := getCPUInfo()
+	s2 := getCPUID()
+	s3 := getNodeNumbyCPUID()
 
-	fmt.Printf("CPU type:%s\n\nCPU ID:\t%s\nCPU Hash:\t%d\n",s1,s2,s3)
+	fmt.Printf("CPU type:%s\n\nCPU ID:\t%s\nCPU Hash:\t%d\n", s1, s2, s3)
 }
 
 //// cpu info

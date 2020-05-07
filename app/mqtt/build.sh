@@ -20,7 +20,7 @@ MACOS="CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 "
 LNXOS="CGO_ENABLED=0 GOOS=linux GOARCH=amd64 "
 WINOS="CGO_ENABLED=0 GOOS=windows GOARCH=amd64 "
 
-rm -f -r ./release $OUTPUT.* $OUTPUT ./run.sh
+rm -f -r ./release $OUTPUT.* $OUTPUT ./run.sh *.pem Sysinfo.json
 mkdir -p ./release
 
 CMD="go build"

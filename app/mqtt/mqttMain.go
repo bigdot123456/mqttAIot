@@ -39,6 +39,7 @@ func main() {
 				go func() {
 					hash := MAChash(deviceInfoStr.CPUID)
 					token := client.Publish(topic+"/N/"+deviceInfoStr.CPUID+"/"+GitCommit, 0, false, hash+strconv.Itoa(int(i)))
+					fmt.Printf("Hash result is: %s\n", hash)
 
 					token.Wait()
 				}()
@@ -46,7 +47,7 @@ func main() {
 			}
 		}
 		i++
-		x := viper.GetInt("client.TestTimes")
+		x := viper.GetInt("testtimes")
 		if x != 0 {
 			if i > x {
 				fmt.Println("Finish test!")
