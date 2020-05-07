@@ -51,6 +51,7 @@ jobs:
           echo "::set-output name=status::success"
           echo "##[set-env name=NAME;]$(date +%Y%m%d_%H%S_%s)"
           tar zcvf app${NAME}.tgz release config *.bat
+          ls *.tgz
 
       - name: Upload compile result to cowtransfer
         if: steps.backupPlatformFile.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
