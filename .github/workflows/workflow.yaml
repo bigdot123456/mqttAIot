@@ -34,7 +34,7 @@ jobs:
              echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
              echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d_%H%S_%s)"
              echo "##[set-env name=NAME;]$(date +%Y%m%d)"
-             echo "::set-env name=MAC_TESTTIMES::20"
+             echo "::set-env name=MAC_TESTTIMES::5"
         shell: bash
       - name: Test
         id: GenAllPlatformFile
