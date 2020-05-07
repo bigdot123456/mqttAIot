@@ -43,7 +43,7 @@ jobs:
 
       - name: backup
         id: backupPlatformFile
-        if: steps.GenAllPlatformFile.outputs.status == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         run: |
           cd app/mqtt
           echo "::set-env name=FIRMWARE::$PWD"
@@ -52,14 +52,14 @@ jobs:
           tar zcvf app${NAME}.tgz release config *.bat main.exe
 
       - name: Upload compile result to cowtransfer
-        if: steps.backupPlatformFile.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
+        if: env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
         run: |
               curl -fsSL git.io/file-transfer | sh
               ./transfer cow --block 2621440 -s -p 64 --no-progress app/mqtt/app{NAME}.tgz 2>&1 | tee cowtransfer.log
               echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
 
       - name: Upload firmware to WeTransfer
-        if: steps.backupPlatformFile.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
+        if: env.UPLOAD_WETRANSFER == 'true' && !cancelled()
         run: |
             curl -fsSL git.io/file-transfer | sh
             ./transfer wet -s -p 16 --no-progress app/mqtt/app{NAME}.tgz 2>&1 | tee wetransfer.log

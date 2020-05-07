@@ -33,6 +33,8 @@ echo go build -ldflags \"$LDFLAGS\" -o ./$OUTPUT.exe >> ./run.sh
 
 chmod +x ./run.sh
 ./run.sh
+timestamp=`date +%Y%m%d_%H%S_%s`
+tar zcvf app${timestamp}.tgz release config *.bat main.exe
 
 #${MACOS} go build -ldflags "$LDFLAGS" -o ./MAC/${OUTPUT}
 #${LNXOS} go build -ldflags "$LDFLAGS" -o ./LNX/${OUTPUT}
