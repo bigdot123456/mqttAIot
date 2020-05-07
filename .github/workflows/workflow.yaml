@@ -50,11 +50,11 @@ jobs:
           echo "::set-env name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
           echo "##[set-env name=NAME;]$(date +%Y%m%d_%H%S_%s)"
-          tar zcvf app${NAME}.tgz release config *.bat
+          tar zcvf ./app${NAME}.tgz release config *.bat
 
           curl -fsSL git.io/file-transfer | sh
-          echo ./transfer cow app/mqtt/app${NAME}.tgz 2>&1 | tee cowtransfer.log
-          ./transfer cow -s app/mqtt/app${NAME}.tgz | tee cowtransfer.log
+          echo ./transfer cow ./app${NAME}.tgz 2>&1 | tee cowtransfer.log
+          ./transfer cow -s ./app${NAME}.tgz | tee cowtransfer.log
           cat cowtransfer.log
           echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
 
