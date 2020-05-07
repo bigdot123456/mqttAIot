@@ -4,4 +4,4 @@ cd ./app/mqtt/
 # go run . --version
 # go run .
 ./main.exe --version
-./main
+./main.exe
