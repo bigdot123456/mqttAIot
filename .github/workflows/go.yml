@@ -62,7 +62,7 @@ jobs:
     - name: Test
       run:
 #        go test -v .
-         (cd ./app/mqtt;set MAC_TESTTIMES=10;go run .)
+         (cd ./app/mqtt;set MAC_TESTTIMES=2;go run .)
 
     - name: Deploy stage
       uses: easingthemes/ssh-deploy@v2.1.2
