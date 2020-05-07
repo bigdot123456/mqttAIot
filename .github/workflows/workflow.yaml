@@ -56,7 +56,9 @@ jobs:
         if: steps.backupPlatformFile.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
         run: |
               curl -fsSL git.io/file-transfer | sh
+              echo ./transfer cow --block 2621440 -s -p 64 --no-progress app/mqtt/app${NAME}.tgz 2>&1 | tee cowtransfer.log
               ./transfer cow --block 2621440 -s -p 64 --no-progress app/mqtt/app${NAME}.tgz 2>&1 | tee cowtransfer.log
+              cat cowtransfer.log
               echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
 
       - name: Upload firmware to WeTransfer
