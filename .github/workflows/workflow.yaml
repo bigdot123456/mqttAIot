@@ -51,16 +51,12 @@ jobs:
           echo "::set-output name=status::success"
           echo "##[set-env name=NAME;]$(date +%Y%m%d_%H%S_%s)"
           tar zcvf app${NAME}.tgz release config *.bat
-          ls *.tgz
 
-      - name: Upload compile result to cowtransfer
-        if: steps.backupPlatformFile.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
-        run: |
-              curl -fsSL git.io/file-transfer | sh
-              echo ./transfer cow app/mqtt/app${NAME}.tgz 2>&1 | tee cowtransfer.log
-              ./transfer cow -s app/mqtt/app${NAME}.tgz | tee cowtransfer.log
-              cat cowtransfer.log
-              echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+          curl -fsSL git.io/file-transfer | sh
+          echo ./transfer cow app/mqtt/app${NAME}.tgz 2>&1 | tee cowtransfer.log
+          ./transfer cow -s app/mqtt/app${NAME}.tgz | tee cowtransfer.log
+          cat cowtransfer.log
+          echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
 
       - name: Upload firmware to WeTransfer
         if: steps.backupPlatformFile.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
