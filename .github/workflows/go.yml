@@ -38,7 +38,7 @@ jobs:
         echo "::set-env name=Author::MACPower"
         echo "::set-env name=MAC_TESTTIMES::100"
         echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
-        echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d)"
+        echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d_%H%S_%s)"
         echo "##[set-env name=NAME;]$(date +%Y%m%d)"
         echo "##[set-env name=GitTag;]MyGit$$(git describe --tags)"
         echo "##[set-env name=BuildTime;]$(date +%FT%T%z)"

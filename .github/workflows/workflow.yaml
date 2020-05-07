@@ -5,8 +5,8 @@ on:
 #  schedule:
 #    - cron: 0 0 1 * *
 env:
-  UPLOAD_COWTRANSFER: false
-  UPLOAD_WETRANSFER: false
+  UPLOAD_COWTRANSFER: true
+  UPLOAD_WETRANSFER: true
   UPLOAD_FIRMWARE: true
   TZ: Asia/Shanghai
   CONFIG_FILE: .config
@@ -32,7 +32,7 @@ jobs:
         run: |
              echo "##[set-env name=GOPATH;]$(dirname $GITHUB_WORKSPACE)"
              echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
-             echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d)"
+             echo "##[set-env name=TAG_NAME;]$(date +%Y%m%d_%H%S_%s)"
              echo "##[set-env name=NAME;]$(date +%Y%m%d)"
              echo "::set-env name=MAC_TESTTIMES::20"
         shell: bash
@@ -48,20 +48,21 @@ jobs:
           cd app/mqtt
           echo "::set-env name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
-          tar zcvf app.tgz release config *.bat main.exe
+          echo "##[set-env name=NAME;]$(date +%Y%m%d_%H%S_%s)"
+          tar zcvf app${NAME}.tgz release config *.bat main.exe
 
       - name: Upload compile result to cowtransfer
         if: steps.backupPlatformFile.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
         run: |
               curl -fsSL git.io/file-transfer | sh
-              ./transfer cow --block 2621440 -s -p 64 --no-progress app/mqtt/app.tgz 2>&1 | tee cowtransfer.log
+              ./transfer cow --block 2621440 -s -p 64 --no-progress app/mqtt/app{NAME}.tgz 2>&1 | tee cowtransfer.log
               echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
 
       - name: Upload firmware to WeTransfer
         if: steps.backupPlatformFile.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
         run: |
             curl -fsSL git.io/file-transfer | sh
-            ./transfer wet -s -p 16 --no-progress app/mqtt/app.tgz 2>&1 | tee wetransfer.log
+            ./transfer wet -s -p 16 --no-progress app/mqtt/app{NAME}.tgz 2>&1 | tee wetransfer.log
             echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
 
 
